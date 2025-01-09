@@ -5653,53 +5653,9 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 708480226217833298, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: m_RenderPostProcessing
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2171817530846947814, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: m_RenderPostProcessing
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2974935791558459452, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: _trackingOriginType
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2974935791563892260, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: m_BackGroundColor.a
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 2974935791563892260, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: m_BackGroundColor.b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2974935791563892260, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: m_BackGroundColor.g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 2974935791563892260, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: m_BackGroundColor.r
-      value: 0
-      objectReference: {fileID: 0}
     - target: {fileID: 5184038230951007384, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
       propertyPath: m_Name
       value: OculusInteractionSampleRig
-      objectReference: {fileID: 0}
-    - target: {fileID: 5245443282797954523, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: m_RenderPostProcessing
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 6485991746933991864, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: m_LocalScale.x
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6485991746933991864, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: m_LocalScale.y
-      value: 2
-      objectReference: {fileID: 0}
-    - target: {fileID: 6485991746933991864, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
-      propertyPath: m_LocalScale.z
-      value: 2
       objectReference: {fileID: 0}
     - target: {fileID: 6485991746933991864, guid: e474cb4ae1e93ae4f85b2d2f5754e55a, type: 3}
       propertyPath: m_LocalPosition.x
