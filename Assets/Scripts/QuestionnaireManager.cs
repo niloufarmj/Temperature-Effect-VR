@@ -65,6 +65,11 @@ public class QuestionnaireManager : MonoBehaviour
         envIndex = PlayerPrefs.GetInt("s"+scenecounter);
         filePath = Application.dataPath + "/CSV-Data/" + userId + "_count" + scenecounter + "_env" + envIndex + "_ipq_comfort.csv" ;
 
+        Debug.Log("Scene Counter: " + PlayerPrefs.GetInt("scene counter"));
+        Debug.Log("PID: " + PlayerPrefs.GetInt("pid"));
+        Debug.Log("Environment Index: " + PlayerPrefs.GetInt("s" + scenecounter));
+
+
     }
 
     // Update is called once per frame
@@ -141,17 +146,21 @@ public class QuestionnaireManager : MonoBehaviour
                 writeQuestionnaireCSV();
                 isIPQAnswered = true;
                 ipqUi.SetActive(false);
-                if (scenecounter == 7) {
-                    finishUI.gameObject.SetActive(true);
-                } else {
-                    timeFeedbackUI.SetActive(true);
-                }       
+                // if (scenecounter == 7) {
+                //     finishUI.gameObject.SetActive(true);
+                // } else {
+                //     timeFeedbackUI.SetActive(true);
+                // }       
+                // Directly activate finish screen
+                finishUI.gameObject.SetActive(true);
             }
         }
     }
 
     private void loadIPQ()
     {
+
+        
         string[] lines = csvFile.text.Split('\n');
 
         questions = new IPQ_Question[lines.Length];
@@ -170,6 +179,19 @@ public class QuestionnaireManager : MonoBehaviour
                 //questions[i] = new IPQ_Question(values[0], values[1], values[2]);
             }
         }
+
+
+        if (csvFile == null)
+        {
+            Debug.LogError("CSV file is not assigned!");
+            return;
+        }
+
+        if (lines.Length == 0)
+        {
+            Debug.LogError("CSV file is empty!");
+        }
+
     }
 
     private void setIPQQuestion()
