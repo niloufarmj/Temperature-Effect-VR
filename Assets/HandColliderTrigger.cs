@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using UnityEngine;
 
 public class HandColliderTrigger : MonoBehaviour
@@ -8,24 +9,34 @@ public class HandColliderTrigger : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("Hand")) // Assuming the hand has a tag "Hand"
+        if (other.CompareTag("RightHand")) // Assuming the right hand has a tag "RightHand"
         {
-            Debug.Log("Hand entered the heater collider.");
-            emissionController.StartTimer();
+            Debug.Log("Right hand entered the heater collider.");
+            emissionController.SetRightHandIn(true);
+        }
+        else if (other.CompareTag("LeftHand")) // Assuming the left hand has a tag "LeftHand"
+        {
+            Debug.Log("Left hand entered the heater collider.");
+            emissionController.SetLeftHandIn(true);
         }
     }
 
     void OnTriggerExit(Collider other)
     {
-        if (other.CompareTag("Hand")) // Assuming the hand has a tag "Hand"
+        if (other.CompareTag("RightHand")) // Assuming the right hand has a tag "RightHand"
         {
-            Debug.Log("Hand exited the heater collider.");
-            emissionController.StopTimer();
-            
-            if (isEmissionEnded)
-            {
-                timer.timerEnded(); // Show questionnaire
-            }
+            Debug.Log("Right hand exited the heater collider.");
+            emissionController.SetRightHandIn(false);
+        }
+        else if (other.CompareTag("LeftHand")) // Assuming the left hand has a tag "LeftHand"
+        {
+            Debug.Log("Left hand exited the heater collider.");
+            emissionController.SetLeftHandIn(false);
+        }
+
+        if (isEmissionEnded)
+        {
+            timer.timerEnded(); // Show questionnaire
         }
     }
 
