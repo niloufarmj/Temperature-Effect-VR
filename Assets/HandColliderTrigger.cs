@@ -1,4 +1,3 @@
-
 using UnityEngine;
 
 public class HandColliderTrigger : MonoBehaviour
@@ -6,6 +5,31 @@ public class HandColliderTrigger : MonoBehaviour
     public EmissionController emissionController; // Assign the EmissionController script in the Inspector
     public Timer timer; // Reference to your Timer script
     private bool isEmissionEnded = false; // Track if emission has ended
+
+    void Update()
+    {
+        // Check for shortcut keys
+        if (Input.GetKeyDown(KeyCode.Q)) // Shortcut for left hand in
+        {
+            Debug.Log("Shortcut: Left hand in.");
+            emissionController.SetLeftHandIn(true);
+        }
+        else if (Input.GetKeyDown(KeyCode.W)) // Shortcut for right hand in
+        {
+            Debug.Log("Shortcut: Right hand in.");
+            emissionController.SetRightHandIn(true);
+        }
+        else if (Input.GetKeyDown(KeyCode.E)) // Shortcut for left hand out
+        {
+            Debug.Log("Shortcut: Left hand out.");
+            emissionController.SetLeftHandIn(false);
+        }
+        else if (Input.GetKeyDown(KeyCode.R)) // Shortcut for right hand out
+        {
+            Debug.Log("Shortcut: Right hand out.");
+            emissionController.SetRightHandIn(false);
+        }
+    }
 
     void OnTriggerEnter(Collider other)
     {

@@ -1,20 +1,16 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 public class EmissionController : MonoBehaviour
 {
-    public Material materialRight; // Assign your material for the right heater in the Inspector
-    public Material materialLeft; // Assign your material for the left heater in the Inspector
-    public Color startColor = new Color(1.0f, 0.64f, 0.0f); // Orangish yellow
-    public Color endColor = Color.red; // Red
-    public float maxIntensity = 1.0f; // Maximum emission intensity
-    public float duration = 180.0f; // Duration in seconds (3 minutes)
-    public GameObject lightRight; // Light for the right heater
-    public GameObject lightLeft; // Light for the left heater
-    public HandColliderTrigger handColliderTriggerRight; // Reference to HandColliderTrigger script for right hand
-    public HandColliderTrigger handColliderTriggerLeft; // Reference to HandColliderTrigger script for left hand
-    public QuestionnaireManager questionnaireManager; // Reference to QuestionnaireManager script
+    public Material materialRight;
+    public Material materialLeft;
+    public Color startColor;
+    public Color endColor;
+    public float maxIntensity = 1.0f;
+    public float duration = 20.0f;
+    public GameObject lightRight;
+    public GameObject lightLeft;
+    public ProgramManager programManager;
 
     private float elapsedTime = 0.0f;
     private bool isTimerRunning = false;
@@ -29,68 +25,58 @@ public class EmissionController : MonoBehaviour
 
             if (elapsedTime <= duration)
             {
-                // Calculate the emission color and intensity based on the elapsed time
                 float t = elapsedTime / duration;
-                Color currentColor = Color.Lerp(startColor, endColor, t);
-                float currentIntensity = Mathf.Lerp(0.0f, maxIntensity, t);
+                Color currentColor;
+                float currentIntensity;
 
-                // Apply the emission color and intensity to the materials
+                if (t <= 0.5f) // First half of the duration
+                {
+                    float lerpT = t / 0.5f; // Normalize t to [0, 1] for the first half
+                    currentColor = Color.Lerp(startColor, endColor, lerpT);
+                    currentIntensity = Mathf.Lerp(0.0f, maxIntensity, lerpT);
+                }
+                else // Second half of the duration
+                {
+                    currentColor = endColor;
+                    currentIntensity = maxIntensity;
+                }
+
                 Color finalColor = currentColor * Mathf.LinearToGammaSpace(currentIntensity);
-                int currentPhase = questionnaireManager.GetCurrentPhase();
 
-                if (currentPhase == 1 && isRightHandIn)
+                if (AreBothHandsIn())
                 {
-                    materialRight.SetColor("_EmissionColor", finalColor);
-                    materialRight.EnableKeyword("_EMISSION");
-                }
-                else if (currentPhase == 2 && isLeftHandIn)
-                {
-                    materialLeft.SetColor("_EmissionColor", finalColor);
-                    materialLeft.EnableKeyword("_EMISSION");
-                }
-                else if (currentPhase == 3)
-                {
-                    if (isRightHandIn)
+                    switch (programManager.GetCurrentPhase())
                     {
-                        materialRight.SetColor("_EmissionColor", finalColor);
-                        materialRight.EnableKeyword("_EMISSION");
+                        case Phase.RightOnLeftOff:
+                            materialRight.SetColor("_EmissionColor", finalColor);
+                            materialRight.EnableKeyword("_EMISSION");
+                            lightRight.SetActive(isRightHandIn);
+                            break;
+                        case Phase.RightOffLeftOn:
+                            materialLeft.SetColor("_EmissionColor", finalColor);
+                            materialLeft.EnableKeyword("_EMISSION");
+                            lightLeft.SetActive(isLeftHandIn);
+                            break;
+                        case Phase.RightOnLeftOn:
+                            materialRight.SetColor("_EmissionColor", finalColor);
+                            materialRight.EnableKeyword("_EMISSION");
+                            materialLeft.SetColor("_EmissionColor", finalColor);
+                            materialLeft.EnableKeyword("_EMISSION");
+                            lightRight.SetActive(isRightHandIn);
+                            lightLeft.SetActive(isLeftHandIn);
+                            break;
                     }
-                    if (isLeftHandIn)
-                    {
-                        materialLeft.SetColor("_EmissionColor", finalColor);
-                        materialLeft.EnableKeyword("_EMISSION");
-                    }
-                }
-
-                if (lightRight != null)
-                {
-                    lightRight.SetActive(isRightHandIn); // Use SetActive instead of enabled for GameObject
-                }
-                if (lightLeft != null)
-                {
-                    lightLeft.SetActive(isLeftHandIn); // Use SetActive instead of enabled for GameObject
                 }
             }
             else
             {
-                // Turn off the emission after the entire duration has passed
                 materialRight.SetColor("_EmissionColor", Color.black);
                 materialRight.DisableKeyword("_EMISSION");
                 materialLeft.SetColor("_EmissionColor", Color.black);
                 materialLeft.DisableKeyword("_EMISSION");
-
-                if (lightRight != null)
-                {
-                    lightRight.SetActive(false); // Turn off the light
-                }
-                if (lightLeft != null)
-                {
-                    lightLeft.SetActive(false); // Turn off the light
-                }
-
-                handColliderTriggerRight.EmissionEnded(); // Notify HandColliderTrigger for right hand
-                handColliderTriggerLeft.EmissionEnded(); // Notify HandColliderTrigger for left hand
-                isTimerRunning = false; // Stop the timer
+                lightRight.SetActive(false);
+                lightLeft.SetActive(false);
+                isTimerRunning = false;
             }
         }
     }
@@ -100,14 +86,8 @@ public class EmissionController : MonoBehaviour
         if (isRightHandIn && isLeftHandIn)
         {
             isTimerRunning = true;
-            elapsedTime = 0.0f; // Reset the timer
-            questionnaireManager.StartWaitingPhase(); // Notify QuestionnaireManager to start the waiting phase
+            elapsedTime = 0.0f;
         }
-    }
-
-    public void StopTimer()
-    {
-        isTimerRunning = false;
     }
 
     public void SetRightHandIn(bool isIn)
@@ -120,5 +100,15 @@ public class EmissionController : MonoBehaviour
     {
         isLeftHandIn = isIn;
         StartTimer();
+    }
+
+    public bool AreBothHandsIn()
+    {
+        return isRightHandIn && isLeftHandIn;
+    }
+
+    public bool AreBothHandsOut()
+    {
+        return !isRightHandIn && !isLeftHandIn;
     }
 }
