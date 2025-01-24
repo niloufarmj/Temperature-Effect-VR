@@ -16,8 +16,8 @@ public class ProgramManager : MonoBehaviour
     private Phase currentPhase = Phase.RightOnLeftOff;
     private State currentState = State.Waiting;
     private float timer = 0f;
-    private float phaseDuration = 20f;
-    private float coolDownDuration = 20f;
+    private float phaseDuration = 10f;
+    private float coolDownDuration = 40f;
 
     void Start()
     {

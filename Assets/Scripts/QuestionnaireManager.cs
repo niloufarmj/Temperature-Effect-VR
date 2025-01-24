@@ -180,7 +180,7 @@ public class QuestionnaireManager : MonoBehaviour
         tw = new StreamWriter(filePath, true);
         tw.WriteLine(header);
 
-        string answers = programManager.GetCurrentPhase() + ";" + DateTime.Now + ";" + comfortAnswer + ";" +
+        string answers = (int)programManager.GetCurrentPhase() + ";" + DateTime.Now + ";" + comfortAnswer + ";" +
                             string.Join(";", ipqAnswers);
 
         tw.WriteLine(answers);
