@@ -14,6 +14,7 @@ public class EmissionController : MonoBehaviour
     public GameObject lightLeft; // Light for the left heater
     public HandColliderTrigger handColliderTriggerRight; // Reference to HandColliderTrigger script for right hand
     public HandColliderTrigger handColliderTriggerLeft; // Reference to HandColliderTrigger script for left hand
+    public QuestionnaireManager questionnaireManager; // Reference to QuestionnaireManager script
 
     private float elapsedTime = 0.0f;
     private bool isTimerRunning = false;
@@ -35,15 +36,30 @@ public class EmissionController : MonoBehaviour
 
                 // Apply the emission color and intensity to the materials
                 Color finalColor = currentColor * Mathf.LinearToGammaSpace(currentIntensity);
-                if (isRightHandIn)
+                int currentPhase = questionnaireManager.GetCurrentPhase();
+
+                if (currentPhase == 1 && isRightHandIn)
                 {
                     materialRight.SetColor("_EmissionColor", finalColor);
                     materialRight.EnableKeyword("_EMISSION");
                 }
-                if (isLeftHandIn)
+                else if (currentPhase == 2 && isLeftHandIn)
                 {
                     materialLeft.SetColor("_EmissionColor", finalColor);
                     materialLeft.EnableKeyword("_EMISSION");
+                }
+                else if (currentPhase == 3)
+                {
+                    if (isRightHandIn)
+                    {
+                        materialRight.SetColor("_EmissionColor", finalColor);
+                        materialRight.EnableKeyword("_EMISSION");
+                    }
+                    if (isLeftHandIn)
+                    {
+                        materialLeft.SetColor("_EmissionColor", finalColor);
+                        materialLeft.EnableKeyword("_EMISSION");
+                    }
                 }
 
                 if (lightRight != null)
@@ -85,6 +101,7 @@ public class EmissionController : MonoBehaviour
         {
             isTimerRunning = true;
             elapsedTime = 0.0f; // Reset the timer
+            questionnaireManager.StartWaitingPhase(); // Notify QuestionnaireManager to start the waiting phase
         }
     }
 

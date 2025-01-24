@@ -8,16 +8,14 @@ using System.IO;
 using System;
 using UnityEditor.SearchService;
 using UnityEngine.SceneManagement;
-using static System.Net.Mime.MediaTypeNames;
-using System.Diagnostics;
 
 public class QuestionnaireManager : MonoBehaviour
 {
     // Timer stuff
     private float timer = 0f;
-    private float phaseDuration = 180f; // 3 minutes
-    private float coolDownDuration = 180f; // 3 minutes
-    private bool isWaiting = true;
+    private float phaseDuration = 20f; // 3 minutes
+    private float coolDownDuration = 90f; // 3 minutes
+    private bool isWaiting = false;
     private bool isCoolDown = false;
     private int currentPhase = 1;
 
@@ -46,7 +44,7 @@ public class QuestionnaireManager : MonoBehaviour
     private TextWriter tw;
     private int scenecounter;
     private int envIndex;
-    private string filePath = Application.dataPath + "/CSV-Data/qr.csv";
+    private string filePath;
 
     // Wait things
     [Header("Waiting Data")]
@@ -70,6 +68,7 @@ public class QuestionnaireManager : MonoBehaviour
         Debug.Log("Environment Index: " + PlayerPrefs.GetInt("s" + scenecounter));
 
         guideText.text = "Please put both hands inside the heaters.";
+        isWaiting = false;
     }
 
     // Update is called once per frame
@@ -106,15 +105,22 @@ public class QuestionnaireManager : MonoBehaviour
                 if (currentPhase <= 3)
                 {
                     guideText.text = "Please put both hands inside the heaters.";
-                    isWaiting = true;
+                    isWaiting = false;
+                    ResetQuestionnaire();
                 }
                 else
                 {
                     finishUI.SetActive(true);
-                    guideText.text = "Thank you for your participation. It's over.";
+                    timeFeedbackUI.SetActive(false);
                 }
             }
         }
+    }
+
+    public void StartWaitingPhase()
+    {
+        isWaiting = true;
+        timer = 0f;
     }
 
     public void checkComfortQ()
@@ -149,7 +155,15 @@ public class QuestionnaireManager : MonoBehaviour
                 writeQuestionnaireCSV();
                 isIPQAnswered = true;
                 ipqUi.SetActive(false);
-                finishUI.SetActive(true);
+                if (currentPhase < 3)
+                {
+                    // StartWaitingPhase();
+                }
+                else
+                {
+                    timeFeedbackUI.SetActive(false);
+                    finishUI.SetActive(true);
+                }
             }
         }
     }
@@ -217,5 +231,50 @@ public class QuestionnaireManager : MonoBehaviour
         Debug.Log("csv should be written now");
         scenecounter += 1;
         PlayerPrefs.SetInt("scene counter", scenecounter);
+    }
+
+    private void ResetQuestionnaire()
+    {
+        currentQuestion = 0;
+        isComfortAnswered = false;
+        isIPQAnswered = false;
+        comfortUI.SetActive(false);
+        ipqUi.SetActive(false);
+        resetIPQToggles();
+        setIPQQuestion();
+    }
+
+    public int GetCurrentPhase()
+    {
+        return currentPhase;
+    }
+}
+
+public class IPQ_Question
+{
+    private string question;
+    private string anchor_negative;
+    private string anchor_positive;
+
+    public IPQ_Question(string question, string anchor_negative, string anchor_positive)
+    {
+        this.question = question;
+        this.anchor_negative = anchor_negative;
+        this.anchor_positive = anchor_positive;
+    }
+
+    public string get_question()
+    {
+        return question;
+    }
+
+    public string get_positive_anchor()
+    {
+        return anchor_positive;
+    }
+
+    public string get_negative_anchor()
+    {
+        return anchor_negative;
     }
 }
