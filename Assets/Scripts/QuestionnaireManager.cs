@@ -31,6 +31,8 @@ public class QuestionnaireManager : MonoBehaviour
     private int envIndex;
     private string filePath;
 
+    public ProgramManager programManager;
+
     void Start()
     {
         loadIPQ();
@@ -41,9 +43,51 @@ public class QuestionnaireManager : MonoBehaviour
         filePath = Application.dataPath + "/CSV-Data/" + userId + "_count" + scenecounter + "_env" + envIndex + "_ipq_comfort.csv";
     }
 
+    void Update()
+    {
+        if (comfortUI.activeSelf)
+        {
+            if (Input.GetKeyDown(KeyCode.A)) SelectComfortAnswer(0);
+            else if (Input.GetKeyDown(KeyCode.S)) SelectComfortAnswer(1);
+            else if (Input.GetKeyDown(KeyCode.D)) SelectComfortAnswer(2);
+            else if (Input.GetKeyDown(KeyCode.F)) SelectComfortAnswer(3);
+            else if (Input.GetKeyDown(KeyCode.G)) SelectComfortAnswer(4);
+        }
+        else if (ipqUi.activeSelf)
+        {
+            if (Input.GetKeyDown(KeyCode.A)) SelectIPQAnswer(0);
+            else if (Input.GetKeyDown(KeyCode.S)) SelectIPQAnswer(1);
+            else if (Input.GetKeyDown(KeyCode.D)) SelectIPQAnswer(2);
+            else if (Input.GetKeyDown(KeyCode.F)) SelectIPQAnswer(3);
+            else if (Input.GetKeyDown(KeyCode.G)) SelectIPQAnswer(4);
+        }
+    }
+
     public void ShowQuestionnaire()
     {
         comfortUI.SetActive(true);
+    }
+
+    private void SelectComfortAnswer(int index)
+    {
+        Toggle[] toggles = tgComfort.GetComponentsInChildren<Toggle>();
+        if (index >= 0 && index < toggles.Length)
+        {
+            toggles[index].isOn = true;
+            comfortAnswer = toggles[index].name;
+            checkComfortQ();
+        }
+    }
+
+    private void SelectIPQAnswer(int index)
+    {
+        Toggle[] toggles = tgIPQ.GetComponentsInChildren<Toggle>();
+        if (index >= 0 && index < toggles.Length)
+        {
+            toggles[index].isOn = true;
+            ipqAnswers[currentQuestion] = toggles[index].name;
+            checkIPQ();
+        }
     }
 
     public void checkComfortQ()
@@ -132,11 +176,11 @@ public class QuestionnaireManager : MonoBehaviour
 
     private void writeQuestionnaireCSV()
     {
-        string header = "scene; time;" + "comfort;" + string.Join(";", ipqItemNames);
+        string header = "phase; time;" + "comfort;" + string.Join(";", ipqItemNames);
         tw = new StreamWriter(filePath, true);
         tw.WriteLine(header);
 
-        string answers = envIndex + ";" + DateTime.Now + ";" + comfortAnswer + ";" +
+        string answers = programManager.GetCurrentPhase() + ";" + DateTime.Now + ";" + comfortAnswer + ";" +
                             string.Join(";", ipqAnswers);
 
         tw.WriteLine(answers);
