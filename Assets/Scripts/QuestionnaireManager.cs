@@ -41,6 +41,9 @@ public class QuestionnaireManager : MonoBehaviour
         int userId = PlayerPrefs.GetInt("pid");
         envIndex = PlayerPrefs.GetInt("s" + scenecounter);
         filePath = Application.dataPath + "/CSV-Data/" + userId + "_count" + scenecounter + "_env" + envIndex + "_ipq_comfort.csv";
+
+        // Ensure the directory exists
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
     }
 
     void Update()
