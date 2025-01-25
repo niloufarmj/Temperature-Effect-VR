@@ -14,7 +14,7 @@ public class HandTracker : MonoBehaviour
 
     private TextWriter tw;
     private string fileName;
-    private WaitForSeconds freq = new WaitForSeconds(0.05f); // 30 fps
+    private WaitForSeconds freq = new WaitForSeconds(1f); // 1 second interval
 
     public ProgramManager programManager;
 
@@ -47,8 +47,8 @@ public class HandTracker : MonoBehaviour
         float rightHandZ;
         while (true)
         {
-
-            if (programManager.GetCurrentState() == State.Questionnaire) {
+            if (programManager.GetCurrentState() == State.Questionnaire)
+            {
                 leftHandX = leftHand.transform.position.x;
                 leftHandY = leftHand.transform.position.y;
                 leftHandZ = leftHand.transform.position.z;
@@ -56,7 +56,9 @@ public class HandTracker : MonoBehaviour
                 rightHandX = rightHand.transform.position.x;
                 rightHandY = rightHand.transform.position.y;
                 rightHandZ = rightHand.transform.position.z;
-            } else {
+            }
+            else
+            {
                 leftHandX = leftTouch.transform.position.x;
                 leftHandY = leftTouch.transform.position.y;
                 leftHandZ = leftTouch.transform.position.z;
@@ -65,7 +67,6 @@ public class HandTracker : MonoBehaviour
                 rightHandY = rightTouch.transform.position.y;
                 rightHandZ = rightTouch.transform.position.z;
             }
-            
 
             string dataPoint = DateTime.Now + ";" + leftHandX + ";" + leftHandY + ";" + leftHandZ + ";" + rightHandX + ";" + rightHandY + ";" + rightHandZ;
             tw = new StreamWriter(fileName, true);
