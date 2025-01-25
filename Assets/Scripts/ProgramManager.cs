@@ -19,9 +19,12 @@ public class ProgramManager : MonoBehaviour
     private float phaseDuration = 10f;
     private float coolDownDuration = 40f;
 
+    public GameObject uiLine;
+
     void Start()
     {
         guideText.text = "Please put both hands inside the heaters.";
+        
     }
 
     void Update()
@@ -36,12 +39,14 @@ public class ProgramManager : MonoBehaviour
                 break;
             case State.Questionnaire:
                 HandleQuestionnaireState();
+                
                 break;
         }
     }
 
     private void HandleWaitingState()
     {
+        uiLine.GetComponent<LineRenderer>().enabled = false;
         if (emissionController.AreBothHandsIn())
         {
             timer += Time.deltaTime;
@@ -61,6 +66,8 @@ public class ProgramManager : MonoBehaviour
     {
         timer += Time.deltaTime;
         timeFeedback.fillAmount = timer / coolDownDuration;
+
+        uiLine.GetComponent<LineRenderer>().enabled = false;
 
         if (timer >= coolDownDuration)
         {
@@ -86,6 +93,7 @@ public class ProgramManager : MonoBehaviour
         if (emissionController.AreBothHandsOut())
         {
             questionnaireManager.ShowQuestionnaire();
+            uiLine.GetComponent<LineRenderer>().enabled = true;
             currentState = State.CoolDown;
         }
     }
@@ -93,6 +101,10 @@ public class ProgramManager : MonoBehaviour
     public Phase GetCurrentPhase()
     {
         return currentPhase;
+    }
+
+    public State GetCurrentState() {
+        return currentState;
     }
 }
 

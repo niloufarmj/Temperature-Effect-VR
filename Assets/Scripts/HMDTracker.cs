@@ -8,9 +8,15 @@ public class HandTracker : MonoBehaviour
 {
     public GameObject leftHand;
     public GameObject rightHand;
+
+    public GameObject leftTouch;
+    public GameObject rightTouch;
+
     private TextWriter tw;
     private string fileName;
     private WaitForSeconds freq = new WaitForSeconds(0.05f); // 30 fps
+
+    public ProgramManager programManager;
 
     void Start()
     {
@@ -32,15 +38,34 @@ public class HandTracker : MonoBehaviour
 
     private IEnumerator collectHandData()
     {
+        float leftHandX;
+        float leftHandY;
+        float leftHandZ;
+
+        float rightHandX;
+        float rightHandY;
+        float rightHandZ;
         while (true)
         {
-            float leftHandX = leftHand.transform.position.x;
-            float leftHandY = leftHand.transform.position.y;
-            float leftHandZ = leftHand.transform.position.z;
 
-            float rightHandX = rightHand.transform.position.x;
-            float rightHandY = rightHand.transform.position.y;
-            float rightHandZ = rightHand.transform.position.z;
+            if (programManager.GetCurrentState() == State.Questionnaire) {
+                leftHandX = leftHand.transform.position.x;
+                leftHandY = leftHand.transform.position.y;
+                leftHandZ = leftHand.transform.position.z;
+
+                rightHandX = rightHand.transform.position.x;
+                rightHandY = rightHand.transform.position.y;
+                rightHandZ = rightHand.transform.position.z;
+            } else {
+                leftHandX = leftTouch.transform.position.x;
+                leftHandY = leftTouch.transform.position.y;
+                leftHandZ = leftTouch.transform.position.z;
+
+                rightHandX = rightTouch.transform.position.x;
+                rightHandY = rightTouch.transform.position.y;
+                rightHandZ = rightTouch.transform.position.z;
+            }
+            
 
             string dataPoint = DateTime.Now + ";" + leftHandX + ";" + leftHandY + ";" + leftHandZ + ";" + rightHandX + ";" + rightHandY + ";" + rightHandZ;
             tw = new StreamWriter(fileName, true);
