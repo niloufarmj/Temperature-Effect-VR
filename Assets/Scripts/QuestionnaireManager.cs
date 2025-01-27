@@ -1,106 +1,95 @@
-using System.Collections;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using System.IO;
 using System;
-using UnityEditor.SearchService;
-using UnityEngine.SceneManagement;
+using System.Linq;
 
 public class QuestionnaireManager : MonoBehaviour
 {
-    // timer stuff
-    private float timer = 0f;
-    private float minWaitTime = 60f; // TODO 3 minutes TODO
-    private bool isWaiting = true;
-
-    // Comfort
     [Header("Thermal Comfort Data")]
     public GameObject comfortUI;
     public ToggleGroup tgComfort;
     private string comfortAnswer;
     private bool isComfortAnswered = false;
 
-    // IPQ
     [Header("IPQ Data")]
     public GameObject ipqUi;
     public ToggleGroup tgIPQ;
     public TextMeshProUGUI textAnchorPositive;
     public TextMeshProUGUI textAnchorNegative;
     public TextMeshProUGUI questionHeader;
-    //private string filePath = "Assets/Scripts/comfort_test.cs";
     private IPQ_Question[] questions;
     private string[] ipqItemNames;
     public TextAsset csvFile;
     private string[] ipqAnswers;
-    private int currentQuestion = 0; 
-    public bool isIPQAnswered = false; 
-    //public GameObject wait_ui;
+    private int currentQuestion = 0;
+    public bool isIPQAnswered = false;
 
-    // csv things
     private TextWriter tw;
     private int scenecounter;
     private int envIndex;
-    private string filePath = Application.dataPath + "/CSV-Data/qr.csv";
+    private string filePath;
 
-    //wait things
-    [Header("Waiting Data")]
-    public Image timeFeedback;
-    public GameObject timeFeedbackUI;
-    public GameObject finishUI;
+    public ProgramManager programManager;
 
-
-
-
-    // Start is called before the first frame update
     void Start()
     {
         loadIPQ();
-        setIPQQuestion(); //it's the first one
-        //does this work with active = false?
+        setIPQQuestion();
         scenecounter = PlayerPrefs.GetInt("scene counter");
         int userId = PlayerPrefs.GetInt("pid");
-        envIndex = PlayerPrefs.GetInt("s"+scenecounter);
-        filePath = Application.dataPath + "/CSV-Data/" + userId + "_count" + scenecounter + "_env" + envIndex + "_ipq_comfort.csv" ;
+        envIndex = PlayerPrefs.GetInt("s" + scenecounter);
+        filePath = Application.dataPath + "/CSV-Data/" + userId + "_count" + scenecounter + "_env" + envIndex + "_ipq_comfort.csv";
 
-        Debug.Log("Scene Counter: " + PlayerPrefs.GetInt("scene counter"));
-        Debug.Log("PID: " + PlayerPrefs.GetInt("pid"));
-        Debug.Log("Environment Index: " + PlayerPrefs.GetInt("s" + scenecounter));
-
-
+        // Ensure the directory exists
+        Directory.CreateDirectory(Path.GetDirectoryName(filePath));
     }
 
-    // Update is called once per frame
     void Update()
     {
-        if (isWaiting)
+        if (comfortUI.activeSelf)
         {
-            if (timer <= minWaitTime)
-            {
-                timer += Time.deltaTime;
-                if (isIPQAnswered) {
-                    timeFeedback.fillAmount = timer / minWaitTime;
-                }
-            }
-            else
-            {
-                isWaiting = false;
-            }
+            if (Input.GetKeyDown(KeyCode.A)) SelectComfortAnswer(0);
+            else if (Input.GetKeyDown(KeyCode.S)) SelectComfortAnswer(1);
+            else if (Input.GetKeyDown(KeyCode.D)) SelectComfortAnswer(2);
+            else if (Input.GetKeyDown(KeyCode.F)) SelectComfortAnswer(3);
+            else if (Input.GetKeyDown(KeyCode.G)) SelectComfortAnswer(4);
         }
-        else 
+        else if (ipqUi.activeSelf)
         {
-            if (isIPQAnswered && isComfortAnswered)
-            {
-                if (scenecounter < 7) {
-                    string scenePref = "s" + scenecounter;
-                    int sceneIndex = PlayerPrefs.GetInt(scenePref);
-                    //Debug.Log("Loading " + sceneIndex);
-                    SceneManager.LoadScene(sceneIndex);
-                }
-                
-            }
+            if (Input.GetKeyDown(KeyCode.A)) SelectIPQAnswer(0);
+            else if (Input.GetKeyDown(KeyCode.S)) SelectIPQAnswer(1);
+            else if (Input.GetKeyDown(KeyCode.D)) SelectIPQAnswer(2);
+            else if (Input.GetKeyDown(KeyCode.F)) SelectIPQAnswer(3);
+            else if (Input.GetKeyDown(KeyCode.G)) SelectIPQAnswer(4);
+        }
+    }
+
+    public void ShowQuestionnaire()
+    {
+        comfortUI.SetActive(true);
+    }
+
+    private void SelectComfortAnswer(int index)
+    {
+        Toggle[] toggles = tgComfort.GetComponentsInChildren<Toggle>();
+        if (index >= 0 && index < toggles.Length)
+        {
+            toggles[index].isOn = true;
+            comfortAnswer = toggles[index].name;
+            checkComfortQ();
+        }
+    }
+
+    private void SelectIPQAnswer(int index)
+    {
+        Toggle[] toggles = tgIPQ.GetComponentsInChildren<Toggle>();
+        if (index >= 0 && index < toggles.Length)
+        {
+            toggles[index].isOn = true;
+            ipqAnswers[currentQuestion] = toggles[index].name;
+            checkIPQ();
         }
     }
 
@@ -110,13 +99,10 @@ public class QuestionnaireManager : MonoBehaviour
         if (toggle != null)
         {
             comfortAnswer = toggle.name;
-            // Debug.Log("Comfort: " + comfortAnswer);
             isComfortAnswered = true;
             comfortUI.SetActive(false);
             ipqUi.SetActive(true);
         }
-        // else show input text pls
-
     }
 
     public void checkIPQ()
@@ -125,15 +111,9 @@ public class QuestionnaireManager : MonoBehaviour
 
         if (toggle != null)
         {
-
-            // save answers
-            //Debug.Log("current question: " + currentQuestion);
             ipqAnswers[currentQuestion] = toggle.name;
 
-            // Debug.Log("Current: " + currentQuestion + "answer: " + ipqAnswers[currentQuestion]);
-
-
-            if (currentQuestion < ipqAnswers.Length - 1) // < 13
+            if (currentQuestion < ipqAnswers.Length - 1)
             {
                 currentQuestion += 1;
                 resetIPQToggles();
@@ -141,26 +121,15 @@ public class QuestionnaireManager : MonoBehaviour
             }
             else
             {
-                Debug.Log("IPQ_done");
-                // writecsv
                 writeQuestionnaireCSV();
                 isIPQAnswered = true;
                 ipqUi.SetActive(false);
-                // if (scenecounter == 7) {
-                //     finishUI.gameObject.SetActive(true);
-                // } else {
-                //     timeFeedbackUI.SetActive(true);
-                // }       
-                // Directly activate finish screen
-                finishUI.gameObject.SetActive(true);
             }
         }
     }
 
     private void loadIPQ()
     {
-
-        
         string[] lines = csvFile.text.Split('\n');
 
         questions = new IPQ_Question[lines.Length];
@@ -176,10 +145,8 @@ public class QuestionnaireManager : MonoBehaviour
                 ipqItemNames[i] = values[0];
                 IPQ_Question ipq_question = new IPQ_Question(values[1], values[2], values[3]);
                 questions[i] = ipq_question;
-                //questions[i] = new IPQ_Question(values[0], values[1], values[2]);
             }
         }
-
 
         if (csvFile == null)
         {
@@ -191,7 +158,6 @@ public class QuestionnaireManager : MonoBehaviour
         {
             Debug.LogError("CSV file is empty!");
         }
-
     }
 
     private void setIPQQuestion()
@@ -213,11 +179,11 @@ public class QuestionnaireManager : MonoBehaviour
 
     private void writeQuestionnaireCSV()
     {
-        string header = "scene; time;" + "comfort;" + string.Join(";", ipqItemNames);
+        string header = "phase; time;" + "comfort;" + string.Join(";", ipqItemNames);
         tw = new StreamWriter(filePath, true);
         tw.WriteLine(header);
 
-        string answers = envIndex + ";" + DateTime.Now + ";" + comfortAnswer + ";" +
+        string answers = (int)programManager.GetCurrentPhase() + ";" + DateTime.Now + ";" + comfortAnswer + ";" +
                             string.Join(";", ipqAnswers);
 
         tw.WriteLine(answers);
@@ -225,12 +191,19 @@ public class QuestionnaireManager : MonoBehaviour
         Debug.Log("csv should be written now");
         scenecounter += 1;
         PlayerPrefs.SetInt("scene counter", scenecounter);
-        // Debug.Log(PlayerPrefs.GetInt("scene counter"));
     }
 
-
+    public void ResetQuestionnaire()
+    {
+        currentQuestion = 0;
+        isComfortAnswered = false;
+        isIPQAnswered = false;
+        comfortUI.SetActive(false);
+        ipqUi.SetActive(false);
+        resetIPQToggles();
+        setIPQQuestion();
+    }
 }
-
 
 public class IPQ_Question
 {
