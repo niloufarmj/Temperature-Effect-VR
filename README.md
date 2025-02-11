@@ -9,6 +9,12 @@ This project, titled **"Changing Body Temperature and Thermal Perception in VR,"
 - **Thermal Perception Simulation**: Created a functional virtual heater with on and off states to simulate the feeling of warmth.
 - **Data Collection**: Methods for recording hand positions, skin temperature, and survey responses.
 
+  
+
+https://github.com/user-attachments/assets/2c4da02b-bd4e-4fa9-b6a1-7b2f48cd0a77
+
+
+
 ## Experimental Design
 The experimental design includes three phases to test the effects of localized heating:
 1. Left heater off, right heater on.
